@@ -10,13 +10,14 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		<engine name="cordova" version=">=3.2.0" />
 	</engines>
 
+	<js-module name="FirebasePlugin" src="www/firebase.js">
+		<clobbers target="FirebasePlugin" />
+	</js-module>
+
 	<platform name="android">
-		<js-module name="fp" src="www/firebase.js">
-			<clobbers target="fp" />
-		</js-module>
 		<config-file parent="/*" target="res/xml/config.xml">
-			<feature name="fp">
-				<param name="android-package" value="org.apache.cordova.firebase.fp" />
+			<feature name="FirebasePlugin">
+				<param name="android-package" value="org.apache.cordova.firebase.FirebasePlugin" />
 				<param name="onload" value="true" />
 			</feature>
 		</config-file>
@@ -66,12 +67,9 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 	</platform>
 
 	<platform name="ios">
-		<js-module name="fp" src="www/firebase.js">
-			<clobbers target="fp" />
-		</js-module>
 		<config-file parent="/*" target="config.xml">
-			<feature name="fp">
-				<param name="ios-package" value="fp" />
+			<feature name="FirebasePlugin">
+				<param name="ios-package" value="FirebasePlugin" />
 				<param name="onload" value="true" />
 			</feature>
 		</config-file>
