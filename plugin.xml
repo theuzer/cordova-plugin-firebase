@@ -11,7 +11,7 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 	</engines>
 
 	<js-module name="FirebasePlugin" src="www/firebase.js">
-		<clobbers target="FirebasePlugin" />
+		<clobbers target="fp" />
 	</js-module>
 
 	<platform name="android">
