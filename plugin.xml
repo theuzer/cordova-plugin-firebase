@@ -12,7 +12,7 @@
 		<clobbers target="fp" />
 	</js-module>
 
-	<hook src="scripts/after_prepare.js" type="after_prepare" />
+	<hook src="scripts/after_prepare.js" type="after_prepare" /> 
 
 	<platform name="android">
 		<config-file parent="/*" target="res/xml/config.xml">

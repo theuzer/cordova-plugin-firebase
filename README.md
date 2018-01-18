@@ -381,3 +381,4 @@ Stop the trace
 ```
 window.FirebasePlugin.stopTrace("test trace");
 ```
+ 
