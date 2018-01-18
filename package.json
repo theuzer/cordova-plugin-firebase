@@ -8,24 +8,21 @@
     "url": "https://github.com/arnesson/cordova-plugin-firebase"
   },
   "name": "cordova-plugin-firebase",
-  "version": "0.1.25",
+  "version": "0.1.26",
   "description": "Cordova plugin for Google Firebase",
   "cordova": {
     "id": "cordova-plugin-firebase",
     "platforms": [
       "android",
-      "ios",
-      "browser"
+      "ios"
     ]
   },
   "keywords": [
     "ecosystem:cordova",
     "cordova-android",
     "cordova-ios",
-    "cordova-browser",
     "firebase",
     "push",
-    "notifications",
-    "phone auth"
+    "notifications"
   ]
 }
