@@ -46,6 +46,10 @@ import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 
+// Crashlytics
+// import com.crashlytics.android.Crashlytics;
+// import io.fabric.sdk.android.Fabric;
+
 public class FirebasePlugin extends CordovaPlugin {
 
     private FirebaseAnalytics mFirebaseAnalytics;
@@ -162,6 +166,27 @@ public class FirebasePlugin extends CordovaPlugin {
             return true;
         } else if (action.equals("stopTrace")) {
             this.stopTrace(callbackContext, args.getString(0));
+            return true;
+        } else if (action.equals("forceCrashlytics")) {
+            this.forceCrashlytics(callbackContext);
+            return true;
+        } else if (action.equals("logCrashlytics")) {
+            this.logCrashlytics(callbackContext, args.getString(0));
+            return true;
+        } else if (action.equals("logExceptionCrashlytics")) {
+            this.logExceptionCrashlytics(callbackContext, args.getString(0));
+            return true;
+        } else if (action.equals("enablePerformanceMonitoring")) {
+            this.enablePerformanceMonitoring(callbackContext, args.getBoolean(0));
+            return true;
+        } else if (action.equals("isPerformanceMonitoringEnabled")) {
+            this.isPerformanceMonitoringEnabled(callbackContext);
+            return true;
+        } else if (action.equals("enableCrashReport")) {
+            this.enableCrashReport(callbackContext, args.getBoolean(0));
+            return true;
+        } else if (action.equals("isCrashReportEnabled")) {
+            this.isCrashReportEnabled(callbackContext);
             return true;
         }
         return false;
@@ -387,6 +412,10 @@ public class FirebasePlugin extends CordovaPlugin {
         });
     }
 
+    // 
+    // Analytics
+    //
+
     private void logEvent(final CallbackContext callbackContext, final String name, final JSONObject params) throws JSONException {
         final Bundle bundle = new Bundle();
         Iterator iter = params.keys();
@@ -407,21 +436,6 @@ public class FirebasePlugin extends CordovaPlugin {
                     mFirebaseAnalytics.logEvent(name, bundle);
                     callbackContext.success();
                 } catch (Exception e) {
-                    callbackContext.error(e.getMessage());
-                }
-            }
-        });
-    }
-
-    private void logError(final CallbackContext callbackContext, final String message) throws JSONException {
-        cordova.getThreadPool().execute(new Runnable() {
-            public void run() {
-                try {
-                    FirebaseCrash.report(new Exception(message));
-                    callbackContext.success(1);
-                } catch (Exception e) {
-                    FirebaseCrash.log(e.getMessage());
-                    e.printStackTrace();
                     callbackContext.error(e.getMessage());
                 }
             }
@@ -467,6 +481,229 @@ public class FirebasePlugin extends CordovaPlugin {
             }
         });
     }
+
+    // 
+    // Performance monitoring
+    //
+
+    private HashMap<String,Trace> traces = new HashMap<String,Trace>();
+
+    private void startTrace(final CallbackContext callbackContext, final String name){
+        final FirebasePlugin self = this;
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+
+                    Trace myTrace = null;
+                    if ( self.traces.containsKey(name) ){
+                        myTrace = self.traces.get(name);
+                    }
+
+                    if ( myTrace == null ){
+                        myTrace = FirebasePerformance.getInstance().newTrace(name);
+                        myTrace.start();
+                        self.traces.put(name, myTrace);
+                    }
+
+                    callbackContext.success();
+                } catch (Exception e) {
+                    FirebaseCrash.log(e.getMessage());
+                    e.printStackTrace();
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
+    }
+
+    private void incrementCounter(final CallbackContext callbackContext, final String name, final String counterNamed){
+        final FirebasePlugin self = this;
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+
+                    Trace myTrace = null;
+                    if ( self.traces.containsKey(name) ){
+                        myTrace = self.traces.get(name);
+                    }
+
+                    if ( myTrace != null && myTrace instanceof Trace ){
+                        myTrace.incrementCounter(counterNamed);
+                        callbackContext.success();
+                    }else{
+                        callbackContext.error("Trace not found");
+                    }
+
+                } catch (Exception e) {
+                    FirebaseCrash.log(e.getMessage());
+                    e.printStackTrace();
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
+    }
+
+    private void stopTrace(final CallbackContext callbackContext, final String name){
+        final FirebasePlugin self = this;
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+
+                    Trace myTrace = null;
+                    if ( self.traces.containsKey(name) ){
+                        myTrace = self.traces.get(name);
+                    }
+
+                    if ( myTrace != null && myTrace instanceof Trace ){ //
+                        myTrace.stop();
+                        self.traces.remove(name);
+                        callbackContext.success();
+                    } else {
+                        callbackContext.error("Trace not found");
+                    }
+
+                } catch (Exception e) {
+                    FirebaseCrash.log(e.getMessage());
+                    e.printStackTrace();
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
+    }
+
+    private void enablePerformanceMonitoring(final CallbackContext callbackContext, final boolean enable) {
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+                    FirebasePerformance.getInstance().setPerformanceCollectionEnabled(enable);
+                    callbackContext.success();
+                } catch (Exception e) {
+                    FirebaseCrash.log(e.getMessage());
+                    e.printStackTrace();
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
+    }
+
+    private void isPerformanceMonitoringEnabled(final CallbackContext callbackContext) {
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+                    boolean isEnabled = FirebasePerformance.getInstance().isPerformanceCollectionEnabled();
+                    callbackContext.success(String.valueOf(isEnabled));
+                } catch (Exception e) {
+                    FirebaseCrash.log(e.getMessage());
+                    e.printStackTrace();
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
+    }
+
+    // 
+    // Crashlytics
+    //
+
+    private void forceCrashlytics(final CallbackContext callbackContext) {
+        final FirebasePlugin self = this;
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+                    //Crashlytics.getInstance().crash();
+                    callbackContext.success();
+                } catch (Exception e) {
+                    FirebaseCrash.log(e.getMessage());
+                    e.printStackTrace();
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
+    }
+
+    private void logCrashlytics(final CallbackContext callbackContext, final String crashMessage) {
+        final FirebasePlugin self = this;
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+                    //Crashlytics.log(crashMessage);
+                    callbackContext.success();
+                } catch (Exception e) {
+                    FirebaseCrash.log(e.getMessage());
+                    e.printStackTrace();
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
+    }
+
+    private void logExceptionCrashlytics(final CallbackContext callbackContext, final String crashMessage) {
+        final FirebasePlugin self = this;
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+                    //Crashlytics.logException(new Throwable(crashMessage));
+                    callbackContext.success();
+                } catch (Exception e) {
+                    FirebaseCrash.log(e.getMessage());
+                    e.printStackTrace();
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
+    }
+
+    // 
+    // Crash reporting
+    //
+
+    private void logError(final CallbackContext callbackContext, final String message) throws JSONException {
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+                    FirebaseCrash.report(new Exception(message));
+                    callbackContext.success(1);
+                } catch (Exception e) {
+                    FirebaseCrash.log(e.getMessage());
+                    e.printStackTrace();
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
+    }
+
+    private void enableCrashReport(final CallbackContext callbackContext, final boolean enable) {
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+                    FirebaseCrash.setCrashCollectionEnabled(enable);
+                    callbackContext.success();
+                } catch (Exception e) {
+                    FirebaseCrash.log(e.getMessage());
+                    e.printStackTrace();
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
+    }
+
+    private void isCrashReportEnabled(final CallbackContext callbackContext) {
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+                    boolean isEnabled = FirebaseCrash.isCrashCollectionEnabled();
+                    callbackContext.success(String.valueOf(isEnabled));
+                } catch (Exception e) {
+                    FirebaseCrash.log(e.getMessage());
+                    e.printStackTrace();
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
+    }
+
+    //
+    // Remote Configuration
+    //
 
     private void activateFetched(final CallbackContext callbackContext) {
         cordova.getThreadPool().execute(new Runnable() {
@@ -623,173 +860,5 @@ public class FirebasePlugin extends CordovaPlugin {
             map.put(key, value);
         }
         return map;
-    }
-
-    private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
-    public void verifyPhoneNumber(final CallbackContext callbackContext, final String number, final int timeOutDuration) {
-        cordova.getThreadPool().execute(new Runnable() {
-            public void run() {
-                try {
-                    mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-                        @Override
-                        public void onVerificationCompleted(PhoneAuthCredential credential) {
-                            // This callback will be invoked in two situations:
-                            // 1 - Instant verification. In some cases the phone number can be instantly
-                            //     verified without needing to send or enter a verification code.
-                            // 2 - Auto-retrieval. On some devices Google Play services can automatically
-                            //     detect the incoming verification SMS and perform verificaiton without
-                            //     user action.
-                            Log.d(TAG, "success: verifyPhoneNumber.onVerificationCompleted - doing nothing. sign in with token from onCodeSent");
-
-                            // does this fire in cordova?
-                            // TODO: return credential
-                        }
-
-                        @Override
-                        public void onVerificationFailed(FirebaseException e) {
-                            // This callback is invoked in an invalid request for verification is made,
-                            // for instance if the the phone number format is not valid.
-                            Log.w(TAG, "failed: verifyPhoneNumber.onVerificationFailed ", e);
-
-                            String errorMsg = "unknown error verifying number";
-                            errorMsg += " Error instance: " + e.getClass().getName();
-                            errorMsg += " Error code: " + ((FirebaseAuthException)e).getErrorCode().toString();
-
-                            if (e instanceof FirebaseAuthInvalidCredentialsException) {
-                                // Invalid request
-                                errorMsg = "Invalid phone number";
-                            } else if (e instanceof FirebaseTooManyRequestsException) {
-                                // The SMS quota for the project has been exceeded
-                                errorMsg = "The SMS quota for the project has been exceeded";
-                            }
-
-                            callbackContext.error(errorMsg);
-                        }
-
-                        @Override
-                        public void onCodeSent(String verificationId, PhoneAuthProvider.ForceResendingToken token) {
-                            // The SMS verification code has been sent to the provided phone number, we
-                            // now need to ask the user to enter the code and then construct a credential
-                            // by combining the code with a verification ID [(in app)].
-                            Log.d(TAG, "success: verifyPhoneNumber.onCodeSent");
-
-                            JSONObject returnResults = new JSONObject();
-                            try {
-                                returnResults.put("verificationId", verificationId);
-                                //returnResults.put("forceResendingToken", token); // TODO: return forceResendingToken
-                            } catch (JSONException e) {
-                                callbackContext.error(e.getMessage());
-                                return;
-                            }
-                            PluginResult pluginresult = new PluginResult(PluginResult.Status.OK, returnResults);
-                            pluginresult.setKeepCallback(true);
-                            callbackContext.sendPluginResult(pluginresult);
-                        }
-                    };
-
-                    PhoneAuthProvider.getInstance().verifyPhoneNumber(
-                            number,                 // Phone number to verify
-                            timeOutDuration,        // Timeout duration
-                            TimeUnit.SECONDS,       // Unit of timeout
-                            cordova.getActivity(),  // Activity (for callback binding)
-                            mCallbacks);            // OnVerificationStateChangedCallbacks
-                    //resentToken);         // The ForceResendingToken obtained from onCodeSent callback
-                    // to force re-sending another verification SMS before the auto-retrieval timeout.
-                    // TODO: make resendToken accessible
-
-
-                } catch (Exception e) {
-                    callbackContext.error(e.getMessage());
-                }
-            }
-        });
-    }
-
-    //
-    // Firebase Performace
-    //
-
-    private HashMap<String,Trace> traces = new HashMap<String,Trace>();
-
-    private void startTrace(final CallbackContext callbackContext, final String name){
-        final FirebasePlugin self = this;
-        cordova.getThreadPool().execute(new Runnable() {
-            public void run() {
-                try {
-
-                    Trace myTrace = null;
-                    if ( self.traces.containsKey(name) ){
-                        myTrace = self.traces.get(name);
-                    }
-
-                    if ( myTrace == null ){
-                        myTrace = FirebasePerformance.getInstance().newTrace(name);
-                        myTrace.start();
-                        self.traces.put(name, myTrace);
-                    }
-
-                    callbackContext.success();
-                } catch (Exception e) {
-                    FirebaseCrash.log(e.getMessage());
-                    e.printStackTrace();
-                    callbackContext.error(e.getMessage());
-                }
-            }
-        });
-    }
-
-    private void incrementCounter(final CallbackContext callbackContext, final String name, final String counterNamed){
-        final FirebasePlugin self = this;
-        cordova.getThreadPool().execute(new Runnable() {
-            public void run() {
-                try {
-
-                    Trace myTrace = null;
-                    if ( self.traces.containsKey(name) ){
-                        myTrace = self.traces.get(name);
-                    }
-
-                    if ( myTrace != null && myTrace instanceof Trace ){
-                        myTrace.incrementCounter(counterNamed);
-                        callbackContext.success();
-                    }else{
-                        callbackContext.error("Trace not found");
-                    }
-
-                } catch (Exception e) {
-                    FirebaseCrash.log(e.getMessage());
-                    e.printStackTrace();
-                    callbackContext.error(e.getMessage());
-                }
-            }
-        });
-    }
-
-    private void stopTrace(final CallbackContext callbackContext, final String name){
-        final FirebasePlugin self = this;
-        cordova.getThreadPool().execute(new Runnable() {
-            public void run() {
-                try {
-
-                    Trace myTrace = null;
-                    if ( self.traces.containsKey(name) ){
-                        myTrace = self.traces.get(name);
-                    }
-
-                    if ( myTrace != null && myTrace instanceof Trace ){ //
-                        myTrace.stop();
-                        self.traces.remove(name);
-                        callbackContext.success();
-                    }else{
-                        callbackContext.error("Trace not found");
-                    }
-
-                } catch (Exception e) {
-                    FirebaseCrash.log(e.getMessage());
-                    e.printStackTrace();
-                    callbackContext.error(e.getMessage());
-                }
-            }
-        });
     }
 }

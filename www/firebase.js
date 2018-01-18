@@ -45,13 +45,6 @@ exports.unregister = function(success, error) {
 };
 
 //
-// Crash reporting
-//
-exports.logError = function(message, success, error) {
-    exec(success, error, "FirebasePlugin", "logError", [message]);
-};
-
-//
 // Analytics
 //
 exports.logEvent = function(name, params, success, error) {
@@ -68,6 +61,44 @@ exports.setUserId = function(id, success, error) {
 
 exports.setUserProperty = function(name, value, success, error) {
     exec(success, error, "FirebasePlugin", "setUserProperty", [name, value]);
+};
+
+//
+// Crash reporting
+//
+exports.logError = function(message, success, error) {
+    exec(success, error, "FirebasePlugin", "logError", [message]);
+};
+
+exports.isCrashReportEnabled = function (success, error) {
+    exec(success, error, "FirebasePlugin", "isCrashReportEnabled", []);
+};
+
+exports.enableCrashReport = function (enable, success, error) {
+    exec(success, error, "FirebasePlugin", "enableCrashReport", [enable]);
+};
+
+//
+// Performance
+//
+exports.startTrace = function (name, success, error) {
+    exec(success, error, "FirebasePlugin", "startTrace", [name]);
+};
+
+exports.incrementCounter = function (name, counterNamed, success, error) {
+    exec(success, error, "FirebasePlugin", "incrementCounter", [name, counterNamed]);
+};
+
+exports.stopTrace = function (name, success, error) {
+    exec(success, error, "FirebasePlugin", "stopTrace", [name]);
+};
+
+exports.enablePerformanceMonitoring = function (enable, success, error) {
+    exec(success, error, "FirebasePlugin", "enablePerformanceMonitoring", [enable]);
+};
+
+exports.isPerformanceMonitoringEnabled = function (success, error) {
+    exec(success, error, "FirebasePlugin", "isPerformanceMonitoringEnabled", []);
 };
 
 //
@@ -127,19 +158,4 @@ exports.setDefaults = function (defaults, namespace, success, error) {
         success = namespace;
     }
     exec(success, error, "FirebasePlugin", "setDefaults", args);
-};
-
-//
-// Performance
-//
-exports.startTrace = function (name, success, error) {
-    exec(success, error, "FirebasePlugin", "startTrace", [name]);
-};
-
-exports.incrementCounter = function (name, counterNamed, success, error) {
-    exec(success, error, "FirebasePlugin", "incrementCounter", [name, counterNamed]);
-};
-
-exports.stopTrace = function (name, success, error) {
-    exec(success, error, "FirebasePlugin", "stopTrace", [name]);
 };
