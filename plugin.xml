@@ -1,8 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="cordova-plugin-firebase" version="0.1.25"
-xmlns="http://apache.org/cordova/ns/plugins/1.0"
-xmlns:android="http://schemas.android.com/apk/res/android">
-	<name>Google Firebase Plugin</name>
+<plugin id="cordova-plugin-firebase" version="0.1.26" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+	<name>Firebase Plugin</name>
 
 	<license>MIT</license>
 
@@ -13,6 +11,8 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 	<js-module name="FirebasePlugin" src="www/firebase.js">
 		<clobbers target="fp" />
 	</js-module>
+
+	<hook src="scripts/after_prepare.js" type="after_prepare" />
 
 	<platform name="android">
 		<config-file parent="/*" target="res/xml/config.xml">
@@ -54,7 +54,6 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		<source-file src="src/android/FirebasePluginInstanceIDService.java" target-dir="src/org/apache/cordova/firebase" />
 		<source-file src="src/android/FirebasePluginMessagingService.java" target-dir="src/org/apache/cordova/firebase" />
 		<source-file src="src/android/colors.xml" target-dir="res/values" />
-
 		<framework src="src/android/build.gradle" custom="true" type="gradleReference" />
 		<framework src="com.google.gms:google-services:+" />
 		<framework src="com.google.android.gms:play-services-tagmanager:+" />
@@ -63,7 +62,6 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		<framework src="com.google.firebase:firebase-crash:+" />
 		<framework src="com.google.firebase:firebase-config:+" />
 		<framework src="com.google.firebase:firebase-perf:+" />
-
 	</platform>
 
 	<platform name="ios">
@@ -79,16 +77,12 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		<config-file parent="aps-environment" target="*/Entitlements-Release.plist">
 			<string>production</string>
 		</config-file>
-
 		<resource-file src="src/ios/GoogleService-Info.plist" />
-
 		<header-file src="src/ios/AppDelegate+FirebasePlugin.h" />
 		<source-file src="src/ios/AppDelegate+FirebasePlugin.m" />
 		<header-file src="src/ios/FirebasePlugin.h" />
 		<source-file src="src/ios/FirebasePlugin.m" />
-
 		<header-file src="src/ios/Firebase/Firebase.h" />
-
 		<framework custom="true" src="src/ios/Firebase/Analytics/FirebaseAnalytics.framework" />
 		<framework custom="true" src="src/ios/Firebase/Analytics/FirebaseCore.framework" />
 		<framework custom="true" src="src/ios/Firebase/Analytics/FirebaseCoreDiagnostics.framework" />
@@ -105,6 +99,4 @@ xmlns:android="http://schemas.android.com/apk/res/android">
 		<framework custom="true" src="src/ios/Firebase/Auth/GTMSessionFetcher.framework" />
 		<framework custom="true" src="src/ios/Firebase/Performance/FirebasePerformance.framework" />
 	</platform>
-
-	<hook src="scripts/after_prepare.js" type="after_prepare" />
 </plugin>
