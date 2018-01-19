@@ -3,6 +3,7 @@ package org.apache.cordova.firebase;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.NotificationManagerCompat;
@@ -431,10 +432,10 @@ public class FirebasePlugin extends CordovaPlugin {
             public void run() {
                 try {
                     Context context = cordova.getActivity();
-                    //ApplicationInfo appinfo = getPackageManager().getApplicationInfo(activity.getPackageName(), PackageManager.GET_META_DATA);
-                    PackageManager appinfo = context.getPackageManager();
-                    int result = appinfo.getComponentEnabledSetting("firebase_analytics_collection_enabled");
-                    callbackContext.success(result);
+                    ApplicationInfo appinfo = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
+                    Bundle bundle = appinfo.metaData;
+                    String analytics_enabled = bundle.getString("firebase_analytics_collection_enabled");
+                    callbackContext.success(String.valueOf(analytics_enabled));
                 } catch (Exception e) {
                     callbackContext.error(e.getMessage());
                 }
