@@ -413,6 +413,33 @@ public class FirebasePlugin extends CordovaPlugin {
     // Analytics
     //
 
+    private void enableAnalytics(final CallbackContext callbackContext, final boolean enable) {
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+                    mFirebaseAnalytics.setAnalyticsCollectionEnabled(enable);
+                } catch (Exception e) {
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
+    }
+
+    private void isAnalyticsEnabled(final CallbackContext callbackContext) {
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+                    ApplicationInfo appinfo = getPackageManager().getApplicationInfo(activity.getPackageName(), PackageManager.GET_META_DATA);
+                    Bundle bundle = appinfo.metaData;
+                    String analytics_enabled = bundle.getString("firebase_analytics_collection_enabled");
+                    callbackContext.success(String.valueOf(analytics_enabled));
+                } catch (Exception e) {
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        })
+    }
+
     private void logEvent(final CallbackContext callbackContext, final String name, final JSONObject params) throws JSONException {
         final Bundle bundle = new Bundle();
         Iterator iter = params.keys();
