@@ -630,7 +630,7 @@ public class FirebasePlugin extends CordovaPlugin {
         });
     }
 
-    private void addTraceAttribute(final CallbackContext callbackContext, final String, traceName, final String attribute, final String value) {
+    private void addTraceAttribute(final CallbackContext callbackContext, final String traceName, final String attribute, final String value) {
         final FirebasePlugin self = this;
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
