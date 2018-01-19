@@ -3,8 +3,6 @@ package org.apache.cordova.firebase;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Base64;
@@ -192,9 +190,6 @@ public class FirebasePlugin extends CordovaPlugin {
             return true;
         } else if (action.equals("enableAnalytics")) {
             this.enableAnalytics(callbackContext, args.getBoolean(0));
-            return true;
-        } else if (action.equals("isAnalyticsEnabled")) {
-            this.isAnalyticsEnabled(callbackContext);
             return true;
         }
         return false;
@@ -429,31 +424,6 @@ public class FirebasePlugin extends CordovaPlugin {
             public void run() {
                 try {
                     mFirebaseAnalytics.setAnalyticsCollectionEnabled(enable);
-                } catch (Exception e) {
-                    callbackContext.error(e.getMessage());
-                }
-            }
-        });
-    }
-
-    private void isAnalyticsEnabled(final CallbackContext callbackContext) {
-        cordova.getThreadPool().execute(new Runnable() {
-            public void run() {
-                try {
-                    Context context = cordova.getActivity().getApplicationContext();
-                    ApplicationInfo appinfo = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
-                    Bundle bundle = appinfo.metaData;
-
-                    String bundleKeySet = "";
-                    for (String key : bundle.keySet()) {
-                        bundleKeySet = bundleKeySet + "  ---  " + key + "=" + bundle.get(key);
-                    }
-                    callbackContext.success(bundleKeySet);
-
-                    //String analytics_enabled = bundle.getString("firebase_analytics_collection_enabled");
-                    //JSONObject info = new JSONObject();
-                    //info.put("bundle", bundle);
-                    //info.put("analytics", analytics_enabled);
                 } catch (Exception e) {
                     callbackContext.error(e.getMessage());
                 }

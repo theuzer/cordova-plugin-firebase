@@ -51,10 +51,6 @@ exports.enableAnalytics = function (enable, success, error) {
     exec(success, error, "FirebasePlugin", "enableAnalytics", [enable]);
 };
 
-exports.isAnalyticsEnabled = function (success, error) {
-    exec(success, error, "FirebasePlugin", "isAnalyticsEnabled", []);
-};
-
 exports.logEvent = function(name, params, success, error) {
     exec(success, error, "FirebasePlugin", "logEvent", [name, params]);
 };
