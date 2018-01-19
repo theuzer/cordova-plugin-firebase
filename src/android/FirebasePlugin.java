@@ -441,7 +441,13 @@ public class FirebasePlugin extends CordovaPlugin {
                     ApplicationInfo appinfo = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
                     Bundle bundle = appinfo.metaData;
                     String analytics_enabled = bundle.getString("firebase_analytics_collection_enabled");
-                    callbackContext.success(String.valueOf(analytics_enabled));
+
+                    JSONObject info = new JSONObject();
+
+                    info.put("bundle", bundle);
+                    info.put("analytics", analytics_enabled);
+
+                    callbackContext.success(info);
                 } catch (Exception e) {
                     callbackContext.error(e.getMessage());
                 }
