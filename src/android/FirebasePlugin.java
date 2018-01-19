@@ -448,7 +448,7 @@ public class FirebasePlugin extends CordovaPlugin {
                     for (String key : bundle.keySet()) {
                         bundleKeySet = bundleKeySet + "  ---  " + key + "=" + bundle.get(key);
                     }
-                    callbackContext.success(info);
+                    callbackContext.success(bundleKeySet);
 
                     //String analytics_enabled = bundle.getString("firebase_analytics_collection_enabled");
                     //JSONObject info = new JSONObject();
