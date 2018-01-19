@@ -437,7 +437,7 @@ public class FirebasePlugin extends CordovaPlugin {
                     callbackContext.error(e.getMessage());
                 }
             }
-        })
+        });
     }
 
     private void logEvent(final CallbackContext callbackContext, final String name, final JSONObject params) throws JSONException {
