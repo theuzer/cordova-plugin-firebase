@@ -429,7 +429,9 @@ public class FirebasePlugin extends CordovaPlugin {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
                 try {
-                    ApplicationInfo appinfo = getPackageManager().getApplicationInfo(activity.getPackageName(), PackageManager.GET_META_DATA);
+                    Context context = cordova.getActivity();
+                    //ApplicationInfo appinfo = getPackageManager().getApplicationInfo(activity.getPackageName(), PackageManager.GET_META_DATA);
+                    ApplicationInfo appinfo = getPackageManager().getApplicationInfo();
                     Bundle bundle = appinfo.metaData;
                     String analytics_enabled = bundle.getString("firebase_analytics_collection_enabled");
                     callbackContext.success(String.valueOf(analytics_enabled));
