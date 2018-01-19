@@ -109,6 +109,10 @@ exports.isPerformanceMonitoringEnabled = function (success, error) {
     exec(success, error, "FirebasePlugin", "isPerformanceMonitoringEnabled", []);
 };
 
+exports.addTraceAttribute = function (traceName, attribute, value, success, error) {
+    exec(success, error, "FirebasePlugin", "addTraceAttribute", [traceName, attribute, value]);
+};
+
 //
 // Remote configuration
 //

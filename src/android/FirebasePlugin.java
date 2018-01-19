@@ -166,6 +166,9 @@ public class FirebasePlugin extends CordovaPlugin {
         } else if (action.equals("stopTrace")) {
             this.stopTrace(callbackContext, args.getString(0));
             return true;
+        } else if (action.equals("addTraceAttribute")) {
+            this.addTraceAttribute(callbackContext, args.getString(0), args.getString(1), args.getString(2));
+            return true;  
         } else if (action.equals("forceCrashlytics")) {
             this.forceCrashlytics(callbackContext);
             return true;
