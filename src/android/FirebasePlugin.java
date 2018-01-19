@@ -440,14 +440,17 @@ public class FirebasePlugin extends CordovaPlugin {
                     Context context = cordova.getActivity();
                     ApplicationInfo appinfo = context.getPackageManager().getApplicationInfo(context.getPackageName(), PackageManager.GET_META_DATA);
                     Bundle bundle = appinfo.metaData;
-                    String analytics_enabled = bundle.getString("firebase_analytics_collection_enabled");
 
-                    JSONObject info = new JSONObject();
-
-                    info.put("bundle", bundle);
-                    info.put("analytics", analytics_enabled);
-
+                    String bundleKeySet = "";
+                    for (String key : bundle.keySet()) {
+                        bundleKeySet = bundleKeySet + "  ---  " + key + "=" + bundle.get(key);
+                    }
                     callbackContext.success(info);
+
+                    //String analytics_enabled = bundle.getString("firebase_analytics_collection_enabled");
+                    //JSONObject info = new JSONObject();
+                    //info.put("bundle", bundle);
+                    //info.put("analytics", analytics_enabled);
                 } catch (Exception e) {
                     callbackContext.error(e.getMessage());
                 }
@@ -615,6 +618,33 @@ public class FirebasePlugin extends CordovaPlugin {
                 try {
                     FirebasePerformance.getInstance().setPerformanceCollectionEnabled(enable);
                     callbackContext.success();
+                } catch (Exception e) {
+                    FirebaseCrash.log(e.getMessage());
+                    e.printStackTrace();
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
+    }
+
+    private void addTraceAttribute(final CallbackContext callbackContext, final String, traceName, final String attribute, final String value) {
+        final FirebasePlugin self = this;
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+
+                    Trace myTrace = null;
+                    if ( self.traces.containsKey(traceName) ){
+                        myTrace = self.traces.get(traceName);
+                    }
+
+                    if ( myTrace != null && myTrace instanceof Trace ){ //
+                        myTrace.putAttribute(attribute, value);
+                        callbackContext.success();
+                    } else {
+                        callbackContext.error("Trace not found");
+                    }
+                    
                 } catch (Exception e) {
                     FirebaseCrash.log(e.getMessage());
                     e.printStackTrace();
