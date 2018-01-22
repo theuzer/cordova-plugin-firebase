@@ -34,7 +34,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-
 // Firebase PhoneAuth
 import java.util.concurrent.TimeUnit;
 import com.google.firebase.auth.FirebaseAuth;
@@ -50,6 +49,17 @@ import com.google.firebase.auth.PhoneAuthProvider;
 // import com.crashlytics.android.Crashlytics;
 // import io.fabric.sdk.android.Fabric;
 
+// Dynamic Links
+import com.google.firebase.dynamiclinks.DynamicLink;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import android.net.Uri;
+import android.support.annotation.NonNull;
+import android.text.TextUtils;
+
 public class FirebasePlugin extends CordovaPlugin {
 
     private FirebaseAnalytics mFirebaseAnalytics;
@@ -60,6 +70,7 @@ public class FirebasePlugin extends CordovaPlugin {
     private static ArrayList<Bundle> notificationStack = null;
     private static CallbackContext notificationCallbackContext;
     private static CallbackContext tokenRefreshCallbackContext;
+    private static CallbackContext dynamicLinkCallback;
 
     @Override
     protected void pluginInitialize() {
@@ -191,6 +202,9 @@ public class FirebasePlugin extends CordovaPlugin {
         } else if (action.equals("enableAnalytics")) {
             this.enableAnalytics(callbackContext, args.getBoolean(0));
             return true;
+        } else if (action.equals("onDynamicLink")) {
+            this.onDynamicLink(callbackContext);
+            return true;
         }
         return false;
     }
@@ -210,6 +224,58 @@ public class FirebasePlugin extends CordovaPlugin {
         FirebasePlugin.notificationCallbackContext = null;
         FirebasePlugin.tokenRefreshCallbackContext = null;
     }
+
+    @Override
+    public void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        final Bundle data = intent.getExtras();
+        if (this.dynamicLinkCallback != null) {
+            respondWithDynamicLink(intent);
+        }
+        if (data != null && data.containsKey("google.message_id")) {
+            data.putBoolean("tap", true);
+            FirebasePlugin.sendNotification(data);
+        }
+    }
+
+    //
+    // Dynamic Links
+    //
+    private void onDynamicLink(final CallbackContext callbackContext) {
+        this.dynamicLinkCallback = callbackContext;
+
+        respondWithDynamicLink(cordova.getActivity().getIntent());
+    }
+
+    private void respondWithDynamicLink(Intent intent) {
+        FirebaseDynamicLinks.getInstance().getDynamicLink(intent)
+            .addOnSuccessListener(cordova.getActivity(), new OnSuccessListener<PendingDynamicLinkData>() {
+                @Override
+                public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData) {
+                    if (pendingDynamicLinkData != null) {
+                        Uri deepLink = pendingDynamicLinkData.getLink();
+
+                        if (deepLink != null) {
+                            JSONObject response = new JSONObject();
+                            try {
+                                response.put("deepLink", deepLink);
+                                response.put("clickTimestamp", pendingDynamicLinkData.getClickTimestamp());
+
+                                PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, response);
+                                pluginResult.setKeepCallback(true);
+                                dynamicLinkCallback.sendPluginResult(pluginResult);
+                            } catch (JSONException e) {
+                                Log.e(TAG, "Fail to handle dynamic link data", e);
+                            }
+                        }
+                    }
+                }
+            });
+    }
+
+    //
+    // Cloud Messaging FCM
+    //
 
     private void onNotificationOpen(final CallbackContext callbackContext) {
         FirebasePlugin.notificationCallbackContext = callbackContext;
@@ -284,16 +350,6 @@ public class FirebasePlugin extends CordovaPlugin {
 
     public static boolean hasNotificationsCallback() {
         return FirebasePlugin.notificationCallbackContext != null;
-    }
-
-    @Override
-    public void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        final Bundle data = intent.getExtras();
-        if (data != null && data.containsKey("google.message_id")) {
-            data.putBoolean("tap", true);
-            FirebasePlugin.sendNotification(data);
-        }
     }
 
     // DEPRECTED - alias of getToken
