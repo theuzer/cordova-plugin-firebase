@@ -12,7 +12,10 @@
 		<clobbers target="fp" />
 	</js-module>
 
-	<hook src="scripts/after_prepare.js" type="after_prepare" /> 
+	<hook src="scripts/after_prepare.js" type="after_prepare" />
+
+	<preference name="APP_DOMAIN" />
+    <preference name="APP_PATH" default ="/" />
 
 	<platform name="android">
 		<config-file parent="/*" target="res/xml/config.xml">
@@ -34,6 +37,15 @@
 		</config-file>
 		<config-file target="AndroidManifest.xml" parent="/manifest/application">
 			<service android:enabled="true" android:exported="false" android:name="com.google.android.gms.measurement.AppMeasurementService" />
+		</config-file>
+		<config-file target="AndroidManifest.xml" parent="/manifest/application/activity">
+			<intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="http" android:host="$APP_DOMAIN" android:pathPrefix="$APP_PATH"/>
+                <data android:scheme="https" android:host="$APP_DOMAIN" android:pathPrefix="$APP_PATH"/>
+            </intent-filter>
 		</config-file>
 		<config-file target="AndroidManifest.xml" parent="/manifest/application">
 			<service android:name="org.apache.cordova.firebase.FirebasePluginMessagingService">
