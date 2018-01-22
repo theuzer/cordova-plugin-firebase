@@ -5,7 +5,7 @@ var exec = require('cordova/exec');
 //
 exports.onDynamicLink = function(success, error) {
     exec(success, error, "FirebasePlugin", "onDynamicLink", []);
-};s
+};
 
 //
 // Cloud Messaging FCM
