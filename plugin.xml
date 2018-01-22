@@ -62,6 +62,7 @@
 		<framework src="com.google.firebase:firebase-crash:+" />
 		<framework src="com.google.firebase:firebase-config:+" />
 		<framework src="com.google.firebase:firebase-perf:+" />
+		<framework src="com.google.firebase:firebase-invites:+" />
 	</platform>
 
 	<platform name="ios">
