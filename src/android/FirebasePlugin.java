@@ -229,7 +229,7 @@ public class FirebasePlugin extends CordovaPlugin {
     public void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         final Bundle data = intent.getExtras();
-        Log.d("1",intent);
+        Log.d("1");
         if (this.dynamicLinkCallback != null) {
             Log.d("2");
             respondWithDynamicLink(intent);
@@ -265,7 +265,7 @@ public class FirebasePlugin extends CordovaPlugin {
 
                                 PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, response);
                                 pluginResult.setKeepCallback(true);
-                                Log.d("3",pluginResult);
+                                Log.d("3");
                                 dynamicLinkCallback.sendPluginResult(pluginResult);
                             } catch (JSONException e) {
                                 Log.e(TAG, "Fail to handle dynamic link data", e);
