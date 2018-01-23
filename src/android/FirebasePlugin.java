@@ -205,6 +205,9 @@ public class FirebasePlugin extends CordovaPlugin {
         } else if (action.equals("onDynamicLink")) {
             this.onDynamicLink(callbackContext);
             return true;
+        } else if (action.equals("teste")) {
+            this.teste(callbackContext, args.getString(0));
+            return true;
         }
         return false;
     }
@@ -229,9 +232,7 @@ public class FirebasePlugin extends CordovaPlugin {
     public void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         final Bundle data = intent.getExtras();
-        Log.d("1","1");
         if (this.dynamicLinkCallback != null) {
-            Log.d("2","2");
             respondWithDynamicLink(intent);
         }
         if (data != null && data.containsKey("google.message_id")) {
@@ -243,6 +244,10 @@ public class FirebasePlugin extends CordovaPlugin {
     //
     // Dynamic Links
     //
+    private void teste(final CallbackContext callbackContext, final String t) {
+        doOnDynamicLink(t);
+    }
+
     private void onDynamicLink(final CallbackContext callbackContext) {
         this.dynamicLinkCallback = callbackContext;
 
@@ -265,8 +270,9 @@ public class FirebasePlugin extends CordovaPlugin {
 
                                 PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, response);
                                 pluginResult.setKeepCallback(true);
-                                Log.d("3","3");
                                 dynamicLinkCallback.sendPluginResult(pluginResult);
+
+                                doOnDynamicLink(deepLink.toString());
                             } catch (JSONException e) {
                                 Log.e(TAG, "Fail to handle dynamic link data", e);
                             }
@@ -274,6 +280,22 @@ public class FirebasePlugin extends CordovaPlugin {
                     }
                 }
             });
+    }
+
+    private void doOnDynamicLink(final String dynamicLink) {
+        cordova.getActivity().runOnUiThread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+                try {
+                    String method = String.format("javascript:cordova.plugins.firebase.dynamiclinks.dynamicLinkCallback( '%s' );", dynamicLink );;
+                    webView.loadUrl(method);
+                } catch (Exception e) {
+                    
+                }
+            }
+        });
     }
 
     //

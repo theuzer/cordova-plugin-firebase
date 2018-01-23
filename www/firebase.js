@@ -177,3 +177,14 @@ exports.setDefaults = function (defaults, namespace, success, error) {
     }
     exec(success, error, "FirebasePlugin", "setDefaults", args);
 };
+
+exports.dynamicLinkCallback = function (dynamicLink) {
+    var ev = document.createEvent('HTMLEvents');
+    ev.dynamicLink = dynamicLink;
+    ev.initEvent('dynamic-link', true, true, arguments);
+    document.dispatchEvent(ev);
+};
+
+exports.teste = function (t, success, error) {
+    exec(success, error, "FirebasePlugin", "teste", [t]);
+};
