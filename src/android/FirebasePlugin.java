@@ -229,9 +229,9 @@ public class FirebasePlugin extends CordovaPlugin {
     public void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         final Bundle data = intent.getExtras();
-        console.info(1, intent);
+        Log.d("1",intent);
         if (this.dynamicLinkCallback != null) {
-            console.info(2);
+            Log.d("2");
             respondWithDynamicLink(intent);
         }
         if (data != null && data.containsKey("google.message_id")) {
@@ -265,7 +265,7 @@ public class FirebasePlugin extends CordovaPlugin {
 
                                 PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, response);
                                 pluginResult.setKeepCallback(true);
-                                console.info(3, pluginResult);
+                                Log.d("3",pluginResult);
                                 dynamicLinkCallback.sendPluginResult(pluginResult);
                             } catch (JSONException e) {
                                 Log.e(TAG, "Fail to handle dynamic link data", e);
