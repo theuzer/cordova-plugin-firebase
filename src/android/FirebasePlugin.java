@@ -289,7 +289,7 @@ public class FirebasePlugin extends CordovaPlugin {
 			public void run()
 			{
                 try {
-                    String method = String.format("javascript:cordova.plugins.firebase.dynamiclinks.dynamicLinkCallback( '%s' );", dynamicLink );;
+                    String method = String.format("javascript:window.fp.dynamicLinkCallback( '%s' );", dynamicLink );;
                     webView.loadUrl(method);
                 } catch (Exception e) {
                     
