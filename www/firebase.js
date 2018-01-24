@@ -1,13 +1,6 @@
 var exec = require('cordova/exec');
 
 //
-// Dynamic Links
-//
-exports.onDynamicLink = function(success, error) {
-    exec(success, error, "FirebasePlugin", "onDynamicLink", []);
-};
-
-//
 // Cloud Messaging FCM
 //
 exports.getInstanceId = function(success, error) {
@@ -178,13 +171,16 @@ exports.setDefaults = function (defaults, namespace, success, error) {
     exec(success, error, "FirebasePlugin", "setDefaults", args);
 };
 
+//
+// Dynamic Links
+//
+exports.onDynamicLink = function(success, error) {
+    exec(success, error, "FirebasePlugin", "onDynamicLink", []);
+};
+
 exports.dynamicLinkCallback = function (dynamicLink) {
     var ev = document.createEvent('HTMLEvents');
     ev.dynamicLink = dynamicLink;
     ev.initEvent('dynamic-link', true, true, arguments);
     document.dispatchEvent(ev);
-};
-
-exports.teste = function (t, success, error) {
-    exec(success, error, "FirebasePlugin", "teste", [t]);
 };

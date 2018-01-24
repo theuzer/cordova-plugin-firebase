@@ -244,10 +244,6 @@ public class FirebasePlugin extends CordovaPlugin {
     //
     // Dynamic Links
     //
-    private void teste(final CallbackContext callbackContext, final String t) {
-        doOnDynamicLink(t);
-    }
-
     private void onDynamicLink(final CallbackContext callbackContext) {
         this.dynamicLinkCallback = callbackContext;
 
@@ -283,17 +279,11 @@ public class FirebasePlugin extends CordovaPlugin {
     }
 
     private void doOnDynamicLink(final String dynamicLink) {
-        cordova.getActivity().runOnUiThread(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-                try {
-                    String method = String.format("javascript:window.fp.dynamicLinkCallback( '%s' );", dynamicLink );;
-                    webView.loadUrl(method);
-                } catch (Exception e) {
-                    
-                }
+        cordova.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                String method = String.format("javascript:window.fp.dynamicLinkCallback( '%s' );", dynamicLink );;
+                webView.loadUrl(method);
             }
         });
     }
@@ -301,7 +291,6 @@ public class FirebasePlugin extends CordovaPlugin {
     //
     // Cloud Messaging FCM
     //
-
     private void onNotificationOpen(final CallbackContext callbackContext) {
         FirebasePlugin.notificationCallbackContext = callbackContext;
         if (FirebasePlugin.notificationStack != null) {
