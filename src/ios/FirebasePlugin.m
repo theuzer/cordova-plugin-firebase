@@ -281,17 +281,6 @@ static FirebasePlugin *firebasePlugin;
     }];
 }
 
-- (void)enableAnalytics:(CDVInvokedUrlCommand *)command {
-    [self.commandDelegate runInBackground:^{
-        BOOL enable = [command.arguments objectAtIndex:0];
-
-        [FIRAnalyticsConfiguration setAnalyticsCollectionEnabled:enable];
-
-        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
-        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-    }]
-}
-
 - (void)fetch:(CDVInvokedUrlCommand *)command {
     [self.commandDelegate runInBackground:^{
         FIRRemoteConfig* remoteConfig = [FIRRemoteConfig remoteConfig];
@@ -402,6 +391,43 @@ static FirebasePlugin *firebasePlugin;
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 
     }];
+}
+
+// NEW METHODS
+
+- (void)enableAnalytics:(CDVInvokedUrlCommand *)command {
+    [self.commandDelegate runInBackground:^{
+        BOOL enable = [command.arguments objectAtIndex:0];
+
+        [FIRAnalyticsConfiguration setAnalyticsCollectionEnabled:enable];
+
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }]
+}
+
+- (void)addTraceAttribute:(CDVInvokedUrlCommand *)command {
+    [self.commandDelegate runInBackground:^{
+        // TODO
+    }]
+}
+
+- (void)enablePerformanceMonitoring:(CDVInvokedUrlCommand *)command {
+    [self.commandDelegate runInBackground:^{
+        BOOL enable = [command.arguments objectAtIndex:0];
+
+        [FIRPerformance sharedInstance].instrumentationEnabled = enable;
+        [FIRPerformance sharedInstance].dataCollectionEnabled = enable;
+
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }]
+}
+
+- (void)isPerformanceMonitoringEnabled:(CDVInvokedUrlCommand *)command {
+    [self.commandDelegate runInBackground:^{
+        // TODO
+    }]
 }
 
 @end
