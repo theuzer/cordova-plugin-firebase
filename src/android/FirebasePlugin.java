@@ -241,123 +241,6 @@ public class FirebasePlugin extends CordovaPlugin {
         }
     }
 
-    //
-    // Dynamic Links
-    //
-    private void onDynamicLink(final CallbackContext callbackContext) {
-        this.dynamicLinkCallback = callbackContext;
-
-        respondWithDynamicLink(cordova.getActivity().getIntent());
-    }
-
-    private void respondWithDynamicLink(Intent intent) {
-        FirebaseDynamicLinks.getInstance().getDynamicLink(intent)
-            .addOnSuccessListener(cordova.getActivity(), new OnSuccessListener<PendingDynamicLinkData>() {
-                @Override
-                public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData) {
-                    if (pendingDynamicLinkData != null) {
-                        Uri deepLink = pendingDynamicLinkData.getLink();
-
-                        if (deepLink != null) {
-                            JSONObject response = new JSONObject();
-                            try {
-                                response.put("deepLink", deepLink);
-                                response.put("clickTimestamp", pendingDynamicLinkData.getClickTimestamp());
-
-                                PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, response);
-                                pluginResult.setKeepCallback(true);
-                                dynamicLinkCallback.sendPluginResult(pluginResult);
-
-                                doOnDynamicLink(deepLink.toString());
-                            } catch (JSONException e) {
-                                Log.e(TAG, "Fail to handle dynamic link data", e);
-                            }
-                        }
-                    }
-                }
-            });
-    }
-
-    private void doOnDynamicLink(final String dynamicLink) {
-        cordova.getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                String method = String.format("javascript:window.fp.dynamicLinkCallback( '%s' );", dynamicLink );;
-                webView.loadUrl(method);
-            }
-        });
-    }
-
-    //
-    // Cloud Messaging FCM
-    //
-    private void onNotificationOpen(final CallbackContext callbackContext) {
-        FirebasePlugin.notificationCallbackContext = callbackContext;
-        if (FirebasePlugin.notificationStack != null) {
-            for (Bundle bundle : FirebasePlugin.notificationStack) {
-                FirebasePlugin.sendNotification(bundle);
-            }
-            FirebasePlugin.notificationStack.clear();
-        }
-    }
-
-    private void onTokenRefresh(final CallbackContext callbackContext) {
-        FirebasePlugin.tokenRefreshCallbackContext = callbackContext;
-
-        cordova.getThreadPool().execute(new Runnable() {
-            public void run() {
-                try {
-                    String currentToken = FirebaseInstanceId.getInstance().getToken();
-
-                    if (currentToken != null) {
-                        FirebasePlugin.sendToken(currentToken);
-                    }
-                } catch (Exception e) {
-                    callbackContext.error(e.getMessage());
-                }
-            }
-        });
-    }
-
-    public static void sendNotification(Bundle bundle) {
-        if (!FirebasePlugin.hasNotificationsCallback()) {
-            if (FirebasePlugin.notificationStack == null) {
-                FirebasePlugin.notificationStack = new ArrayList<Bundle>();
-            }
-            notificationStack.add(bundle);
-            return;
-        }
-        final CallbackContext callbackContext = FirebasePlugin.notificationCallbackContext;
-        if (callbackContext != null && bundle != null) {
-            JSONObject json = new JSONObject();
-            Set<String> keys = bundle.keySet();
-            for (String key : keys) {
-                try {
-                    json.put(key, bundle.get(key));
-                } catch (JSONException e) {
-                    callbackContext.error(e.getMessage());
-                    return;
-                }
-            }
-
-            PluginResult pluginresult = new PluginResult(PluginResult.Status.OK, json);
-            pluginresult.setKeepCallback(true);
-            callbackContext.sendPluginResult(pluginresult);
-        }
-    }
-
-    public static void sendToken(String token) {
-        if (FirebasePlugin.tokenRefreshCallbackContext == null) {
-            return;
-        }
-        final CallbackContext callbackContext = FirebasePlugin.tokenRefreshCallbackContext;
-        if (callbackContext != null && token != null) {
-            PluginResult pluginresult = new PluginResult(PluginResult.Status.OK, token);
-            pluginresult.setKeepCallback(true);
-            callbackContext.sendPluginResult(pluginresult);
-        }
-    }
-
     public static boolean inBackground() {
         return FirebasePlugin.inBackground;
     }
@@ -366,7 +249,11 @@ public class FirebasePlugin extends CordovaPlugin {
         return FirebasePlugin.notificationCallbackContext != null;
     }
 
-    // DEPRECTED - alias of getToken
+    //
+    // Cloud Messaging FCM
+    //
+
+    // DEPRECATED - alias of getToken
     private void getInstanceId(final CallbackContext callbackContext) {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
@@ -485,15 +372,27 @@ public class FirebasePlugin extends CordovaPlugin {
         });
     }
 
-    // 
-    // Analytics
-    //
+    private void onNotificationOpen(final CallbackContext callbackContext) {
+        FirebasePlugin.notificationCallbackContext = callbackContext;
+        if (FirebasePlugin.notificationStack != null) {
+            for (Bundle bundle : FirebasePlugin.notificationStack) {
+                FirebasePlugin.sendNotification(bundle);
+            }
+            FirebasePlugin.notificationStack.clear();
+        }
+    }
 
-    private void enableAnalytics(final CallbackContext callbackContext, final boolean enable) {
+    private void onTokenRefresh(final CallbackContext callbackContext) {
+        FirebasePlugin.tokenRefreshCallbackContext = callbackContext;
+
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
                 try {
-                    mFirebaseAnalytics.setAnalyticsCollectionEnabled(enable);
+                    String currentToken = FirebaseInstanceId.getInstance().getToken();
+
+                    if (currentToken != null) {
+                        FirebasePlugin.sendToken(currentToken);
+                    }
                 } catch (Exception e) {
                     callbackContext.error(e.getMessage());
                 }
@@ -501,6 +400,48 @@ public class FirebasePlugin extends CordovaPlugin {
         });
     }
 
+    public static void sendNotification(Bundle bundle) {
+        if (!FirebasePlugin.hasNotificationsCallback()) {
+            if (FirebasePlugin.notificationStack == null) {
+                FirebasePlugin.notificationStack = new ArrayList<Bundle>();
+            }
+            notificationStack.add(bundle);
+            return;
+        }
+        final CallbackContext callbackContext = FirebasePlugin.notificationCallbackContext;
+        if (callbackContext != null && bundle != null) {
+            JSONObject json = new JSONObject();
+            Set<String> keys = bundle.keySet();
+            for (String key : keys) {
+                try {
+                    json.put(key, bundle.get(key));
+                } catch (JSONException e) {
+                    callbackContext.error(e.getMessage());
+                    return;
+                }
+            }
+
+            PluginResult pluginresult = new PluginResult(PluginResult.Status.OK, json);
+            pluginresult.setKeepCallback(true);
+            callbackContext.sendPluginResult(pluginresult);
+        }
+    }
+
+    public static void sendToken(String token) {
+        if (FirebasePlugin.tokenRefreshCallbackContext == null) {
+            return;
+        }
+        final CallbackContext callbackContext = FirebasePlugin.tokenRefreshCallbackContext;
+        if (callbackContext != null && token != null) {
+            PluginResult pluginresult = new PluginResult(PluginResult.Status.OK, token);
+            pluginresult.setKeepCallback(true);
+            callbackContext.sendPluginResult(pluginresult);
+        }
+    }
+
+    // 
+    // Analytics
+    //
     private void logEvent(final CallbackContext callbackContext, final String name, final JSONObject params) throws JSONException {
         final Bundle bundle = new Bundle();
         Iterator iter = params.keys();
@@ -567,10 +508,22 @@ public class FirebasePlugin extends CordovaPlugin {
         });
     }
 
+    private void enableAnalytics(final CallbackContext callbackContext, final boolean enable) {
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+                    mFirebaseAnalytics.setAnalyticsCollectionEnabled(enable);
+                    callbackContext.success();
+                } catch (Exception e) {
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
+    }  
+
     // 
     // Performance monitoring
     //
-
     private HashMap<String,Trace> traces = new HashMap<String,Trace>();
 
     private void startTrace(final CallbackContext callbackContext, final String name){
@@ -655,21 +608,6 @@ public class FirebasePlugin extends CordovaPlugin {
         });
     }
 
-    private void enablePerformanceMonitoring(final CallbackContext callbackContext, final boolean enable) {
-        cordova.getThreadPool().execute(new Runnable() {
-            public void run() {
-                try {
-                    FirebasePerformance.getInstance().setPerformanceCollectionEnabled(enable);
-                    callbackContext.success();
-                } catch (Exception e) {
-                    FirebaseCrash.log(e.getMessage());
-                    e.printStackTrace();
-                    callbackContext.error(e.getMessage());
-                }
-            }
-        });
-    }
-
     private void addTraceAttribute(final CallbackContext callbackContext, final String traceName, final String attribute, final String value) {
         final FirebasePlugin self = this;
         cordova.getThreadPool().execute(new Runnable() {
@@ -697,6 +635,21 @@ public class FirebasePlugin extends CordovaPlugin {
         });
     }
 
+    private void enablePerformanceMonitoring(final CallbackContext callbackContext, final boolean enable) {
+        cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+                try {
+                    FirebasePerformance.getInstance().setPerformanceCollectionEnabled(enable);
+                    callbackContext.success();
+                } catch (Exception e) {
+                    FirebaseCrash.log(e.getMessage());
+                    e.printStackTrace();
+                    callbackContext.error(e.getMessage());
+                }
+            }
+        });
+    }
+
     private void isPerformanceMonitoringEnabled(final CallbackContext callbackContext) {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
@@ -715,7 +668,6 @@ public class FirebasePlugin extends CordovaPlugin {
     // 
     // Crashlytics
     //
-
     private void forceCrashlytics(final CallbackContext callbackContext) {
         final FirebasePlugin self = this;
         cordova.getThreadPool().execute(new Runnable() {
@@ -767,7 +719,6 @@ public class FirebasePlugin extends CordovaPlugin {
     // 
     // Crash reporting
     //
-
     private void logError(final CallbackContext callbackContext, final String message) throws JSONException {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
@@ -816,7 +767,6 @@ public class FirebasePlugin extends CordovaPlugin {
     //
     // Remote Configuration
     //
-
     private void activateFetched(final CallbackContext callbackContext) {
         cordova.getThreadPool().execute(new Runnable() {
             public void run() {
@@ -972,5 +922,52 @@ public class FirebasePlugin extends CordovaPlugin {
             map.put(key, value);
         }
         return map;
+    }
+
+    //
+    // Dynamic Links
+    //
+    private void onDynamicLink(final CallbackContext callbackContext) {
+        this.dynamicLinkCallback = callbackContext;
+
+        respondWithDynamicLink(cordova.getActivity().getIntent());
+    }
+
+    private void respondWithDynamicLink(Intent intent) {
+        FirebaseDynamicLinks.getInstance().getDynamicLink(intent)
+            .addOnSuccessListener(cordova.getActivity(), new OnSuccessListener<PendingDynamicLinkData>() {
+                @Override
+                public void onSuccess(PendingDynamicLinkData pendingDynamicLinkData) {
+                    if (pendingDynamicLinkData != null) {
+                        Uri deepLink = pendingDynamicLinkData.getLink();
+
+                        if (deepLink != null) {
+                            JSONObject response = new JSONObject();
+                            try {
+                                response.put("deepLink", deepLink);
+                                response.put("clickTimestamp", pendingDynamicLinkData.getClickTimestamp());
+
+                                PluginResult pluginResult = new PluginResult(PluginResult.Status.OK, response);
+                                pluginResult.setKeepCallback(true);
+                                dynamicLinkCallback.sendPluginResult(pluginResult);
+
+                                doOnDynamicLink(deepLink.toString());
+                            } catch (JSONException e) {
+                                Log.e(TAG, "Fail to handle dynamic link data", e);
+                            }
+                        }
+                    }
+                }
+            });
+    }
+
+    private void doOnDynamicLink(final String dynamicLink) {
+        cordova.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                String method = String.format("javascript:window.fp.dynamicLinkCallback( '%s' );", dynamicLink );;
+                webView.loadUrl(method);
+            }
+        });
     }
 }
