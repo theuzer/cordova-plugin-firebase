@@ -205,9 +205,6 @@ public class FirebasePlugin extends CordovaPlugin {
         } else if (action.equals("onDynamicLink")) {
             this.onDynamicLink(callbackContext);
             return true;
-        } else if (action.equals("teste")) {
-            this.teste(callbackContext, args.getString(0));
-            return true;
         }
         return false;
     }
