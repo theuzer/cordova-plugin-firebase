@@ -124,11 +124,13 @@
     [FirebasePlugin.firebasePlugin sendNotification:mutableUserInfo];
 }
 
+/*
 // Receive data message on iOS 10 devices.
 - (void)applicationReceivedRemoteMessage:(FIRMessagingRemoteMessage *)remoteMessage {
     // Print full message
     NSLog(@"%@", [remoteMessage appData]);
 }
 #endif
+*/
 
 @end
