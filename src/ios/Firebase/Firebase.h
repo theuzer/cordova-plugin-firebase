@@ -36,11 +36,10 @@
   #if __has_include(<FirebaseInvites/FirebaseInvites.h>)
     #import <FirebaseInvites/FirebaseInvites.h>
   #endif
- /*
+  
   #if __has_include(<FirebaseMessaging/FirebaseMessaging.h>)
     #import <FirebaseMessaging/FirebaseMessaging.h>
   #endif
-  */
 
   #if __has_include(<FirebasePerformance/FirebasePerformance.h>)
     #import <FirebasePerformance/FirebasePerformance.h>
