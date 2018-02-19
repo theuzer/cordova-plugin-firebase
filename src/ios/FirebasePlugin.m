@@ -3,7 +3,7 @@
 #import "AppDelegate.h"
 #import "Firebase.h"
 @import FirebaseInstanceID;
-@import FirebaseMessaging;
+// @import FirebaseMessaging;
 @import FirebaseAnalytics;
 @import FirebaseRemoteConfig;
 @import FirebasePerformance;
@@ -71,6 +71,7 @@ static FirebasePlugin *firebasePlugin;
     CDVPluginResult *commandResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:message];
     [self.commandDelegate sendPluginResult:commandResult callbackId:command.callbackId];
 }
+/*
 - (void)grantPermission:(CDVInvokedUrlCommand *)command {
     if (floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_9_x_Max) {
         if ([[UIApplication sharedApplication]respondsToSelector:@selector(registerUserNotificationSettings:)]) {
@@ -138,6 +139,7 @@ static FirebasePlugin *firebasePlugin;
 	return;
 }
 
+*/
 - (void)setBadgeNumber:(CDVInvokedUrlCommand *)command {
     int number = [[command.arguments objectAtIndex:0] intValue];
 
@@ -157,7 +159,7 @@ static FirebasePlugin *firebasePlugin;
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
 }
-
+/*
 - (void)subscribe:(CDVInvokedUrlCommand *)command {
     NSString* topic = [NSString stringWithFormat:@"/topics/%@", [command.arguments objectAtIndex:0]];
 
@@ -175,6 +177,7 @@ static FirebasePlugin *firebasePlugin;
     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
+*/
 
 - (void)unregister:(CDVInvokedUrlCommand *)command {
     [[FIRInstanceID instanceID] deleteIDWithHandler:^void(NSError *_Nullable error){
