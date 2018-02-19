@@ -112,10 +112,10 @@ public class FirebasePlugin extends CordovaPlugin {
             this.getBadgeNumber(callbackContext);
             return true;
         } else if (action.equals("subscribe")) {
-            this.subscribe(callbackContext, args.getString(0));
+            // this.subscribe(callbackContext, args.getString(0));
             return true;
         } else if (action.equals("unsubscribe")) {
-            this.unsubscribe(callbackContext, args.getString(0));
+            // this.unsubscribe(callbackContext, args.getString(0));
             return true;
         } else if (action.equals("unregister")) {
             this.unregister(callbackContext);
