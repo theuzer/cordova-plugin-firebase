@@ -11,7 +11,7 @@
 // running iOS 10 and above. Implement FIRMessagingDelegate to receive data message via FCM for
 // devices running iOS 10 and above.
 #if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
-@interface AppDelegate () <UNUserNotificationCenterDelegate, FIRMessagingDelegate>
+@interface AppDelegate () <UNUserNotificationCenterDelegate>
 @end
 #endif
 
@@ -49,12 +49,12 @@
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
-    [self connectToFcm];
+    // [self connectToFcm];
     self.applicationInBackground = @(NO);
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
-    [[FIRMessaging messaging] disconnect];
+    // [[FIRMessaging messaging] disconnect];
     self.applicationInBackground = @(YES);
     NSLog(@"Disconnected from FCM");
 }
@@ -67,11 +67,12 @@
     NSLog(@"InstanceID token: %@", refreshedToken);
     
     // Connect to FCM since connection may have failed when attempted before having a token.
-    [self connectToFcm];
+    // [self connectToFcm];
 
     [FirebasePlugin.firebasePlugin sendToken:refreshedToken];
 }
 
+/*
 - (void)connectToFcm {
     [[FIRMessaging messaging] connectWithCompletion:^(NSError * _Nullable error) {
         if (error != nil) {
@@ -83,6 +84,7 @@
         }
     }];
 }
+*/
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
     NSDictionary *mutableUserInfo = [userInfo mutableCopy];
@@ -122,11 +124,13 @@
     [FirebasePlugin.firebasePlugin sendNotification:mutableUserInfo];
 }
 
+/*
 // Receive data message on iOS 10 devices.
 - (void)applicationReceivedRemoteMessage:(FIRMessagingRemoteMessage *)remoteMessage {
     // Print full message
     NSLog(@"%@", [remoteMessage appData]);
 }
+*/
 #endif
 
 @end
