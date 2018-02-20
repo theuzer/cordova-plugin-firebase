@@ -11,8 +11,7 @@
 // running iOS 10 and above. Implement FIRMessagingDelegate to receive data message via FCM for
 // devices running iOS 10 and above.
 #if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
-// @interface AppDelegate () <UNUserNotificationCenterDelegate, FIRMessagingDelegate>
-@interface AppDelegate () <UNUserNotificationCenterDelegate>
+@interface AppDelegate () <UNUserNotificationCenterDelegate, FIRMessagingDelegate>
 @end
 #endif
 
@@ -43,7 +42,6 @@
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tokenRefreshNotification:)
                                                  name:kFIRInstanceIDTokenRefreshNotification object:nil];
-
     
     self.applicationInBackground = @(YES);
     
@@ -51,16 +49,15 @@
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
-    // [self connectToFcm];
+    [self connectToFcm];
     self.applicationInBackground = @(NO);
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application {
-    // [[FIRMessaging messaging] disconnect];
+    [[FIRMessaging messaging] disconnect];
     self.applicationInBackground = @(YES);
     NSLog(@"Disconnected from FCM");
 }
-
 
 - (void)tokenRefreshNotification:(NSNotification *)notification {
     // Note that this callback will be fired everytime a new token is generated, including the first
@@ -70,12 +67,11 @@
     NSLog(@"InstanceID token: %@", refreshedToken);
     
     // Connect to FCM since connection may have failed when attempted before having a token.
-    // [self connectToFcm];
+    [self connectToFcm];
 
     [FirebasePlugin.firebasePlugin sendToken:refreshedToken];
 }
 
-/*
 - (void)connectToFcm {
     [[FIRMessaging messaging] connectWithCompletion:^(NSError * _Nullable error) {
         if (error != nil) {
@@ -112,7 +108,6 @@
     [FirebasePlugin.firebasePlugin sendNotification:mutableUserInfo];
 }
 
-*/
 #if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center
        willPresentNotification:(UNNotification *)notification
@@ -132,7 +127,6 @@
     // Print full message
     NSLog(@"%@", [remoteMessage appData]);
 }
-
 #endif
 
 @end
