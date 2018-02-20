@@ -11,7 +11,7 @@
 // running iOS 10 and above. Implement FIRMessagingDelegate to receive data message via FCM for
 // devices running iOS 10 and above.
 #if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
-@interface AppDelegate () <UNUserNotificationCenterDelegate>
+@interface AppDelegate () <UNUserNotificationCenterDelegate, FIRMessagingDelegate>
 @end
 #endif
 
@@ -40,11 +40,9 @@
         [FIRApp configure];
     }
     
-    /*
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(tokenRefreshNotification:)
                                                  name:kFIRInstanceIDTokenRefreshNotification object:nil];
-    
-    */
+
     
     self.applicationInBackground = @(YES);
     
@@ -62,7 +60,7 @@
     NSLog(@"Disconnected from FCM");
 }
 
-/*
+
 - (void)tokenRefreshNotification:(NSNotification *)notification {
     // Note that this callback will be fired everytime a new token is generated, including the first
     // time. So if you need to retrieve the token as soon as it is available this is where that
@@ -76,6 +74,7 @@
     [FirebasePlugin.firebasePlugin sendToken:refreshedToken];
 }
 
+/*
 - (void)connectToFcm {
     [[FIRMessaging messaging] connectWithCompletion:^(NSError * _Nullable error) {
         if (error != nil) {
@@ -112,6 +111,7 @@
     [FirebasePlugin.firebasePlugin sendNotification:mutableUserInfo];
 }
 
+*/
 #if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center
        willPresentNotification:(UNNotification *)notification
@@ -133,7 +133,5 @@
 }
 
 #endif
-
-*/
 
 @end
