@@ -11,7 +11,7 @@
 // running iOS 10 and above. Implement FIRMessagingDelegate to receive data message via FCM for
 // devices running iOS 10 and above.
 #if defined(__IPHONE_10_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
-@interface AppDelegate () <>
+@interface AppDelegate () <UNUserNotificationCenterDelegate>
 @end
 #endif
 
